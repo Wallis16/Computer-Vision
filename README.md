@@ -1,6 +1,8 @@
-# PDI-projects-0
+## PDI-projects
+
 Projects using digital image processing tools
 
+# project-0
 First project -- line follower robot (v-rep simulation environment)
 
 (PI code)
