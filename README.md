@@ -12,7 +12,7 @@ First project -- line follower robot (v-rep simulation environment)
 ![rb](https://user-images.githubusercontent.com/26671424/55207156-e1c28f00-51b7-11e9-9a42-8d6e18b6ee8f.png)
 
 ### project-1
-Second project -- get videos and play them in irregular surfaces by adjusting the imagens using only the mouse
+Second project -- get videos and play them in irregular surfaces by adjusting the images using only the mouse
 
 ![im-dist](https://user-images.githubusercontent.com/26671424/55207730-30712880-51ba-11e9-9c97-a6eaafeb154b.png)
 (Image-transformation-8-DoF code)
