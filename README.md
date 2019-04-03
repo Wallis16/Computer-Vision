@@ -16,3 +16,6 @@ Second project -- get videos and play them in irregular surfaces by adjusting th
 
 ![im-dist](https://user-images.githubusercontent.com/26671424/55207730-30712880-51ba-11e9-9c97-a6eaafeb154b.png)
 (Image-transformation-8-DoF code)
+
+![tab-xadrez](https://user-images.githubusercontent.com/26671424/55447292-86b6e080-5599-11e9-9dfe-f62cebe6d0d4.png)
+(Mult-images-delay)
