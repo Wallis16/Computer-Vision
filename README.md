@@ -25,7 +25,7 @@ Second project -- get videos and play them in irregular surfaces by adjusting th
 Third project -- remove text from a video using inpaint
 
 ![p](https://user-images.githubusercontent.com/26671424/57669242-853cf700-75e0-11e9-9bf9-538d4cd3c947.png)
-Selecting the part of first frame that will be remove using inpaint technique. 
+Selecting the part of first frame that will be removed using inpaint technique. 
 
 ![l2](https://user-images.githubusercontent.com/26671424/57669240-853cf700-75e0-11e9-9318-4b5bc3ff50ef.png)
 Original image
