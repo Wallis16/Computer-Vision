@@ -4,6 +4,14 @@ import numpy as np
 from datetime import datetime
 import time
 
+# Python code to remove duplicate elements 
+def Remove(duplicate): 
+    final_list = [] 
+    for num in duplicate: 
+        if num not in final_list: 
+            final_list.append(num) 
+    return final_list 
+
 # This is a demo of running face recognition on live video from your webcam. It's a little more complicated than the
 # other example, but it includes some basic performance tweaks to make things run a lot faster:
 #   1. Process each video frame at 1/4 resolution (though still display it at full resolution)
@@ -19,12 +27,14 @@ global cnt
 global aux_
 global old
 global string_IN
+global string_OUT
 cnt = 0
 aux_ = 0
 old = 0
 string_IN = []
+string_OUT = []
 
-file = open("out.txt","w")
+#file = open("out.txt","w")
 #file = open("FACE_OUT.txt","w")
 
 # Load a sample picture and learn how to recognize it.
@@ -64,15 +74,10 @@ while True:
     
     flag_detection = False
     time_detection_face_diogenes = 0
-    #reference = 0
-    #aux_ = 0
 
     # Resize frame of video to 1/4 size for faster face recognition processing
     small_frame = cv2.resize(frame, (0, 0), fx=0.25, fy=0.25)
 
-    #small_frame = small_frame[0:480,0:640]
-    #print(small_frame.shape) 120,160
-    #small_frame = small_frame[0:120,0:75]
     # Convert the image from BGR color (which OpenCV uses) to RGB color (which face_recognition uses)
     rgb_small_frame = small_frame[:, :, ::-1]
 
@@ -86,7 +91,7 @@ while True:
         for face_encoding in face_encodings:
             # See if the face is a match for the known face(s)
             matches = face_recognition.compare_faces(known_face_encodings, face_encoding)
-            name = "Não identificado"
+            name = "Nao identificado"
 
             # # If a match was found in known_face_encodings, just use the first one.
             # if True in matches:
@@ -115,42 +120,40 @@ while True:
         bottom *= 4
         left *= 4
 
-        # Draw a box around the face
-        cv2.rectangle(frame, (left, top), (right, bottom), (0, 0, 255), 2)
+        if right < 310:
+            # Draw a box around the face
+            cv2.rectangle(frame, (left, top), (right, bottom), (0, 0, 255), 2)
         
-        # Draw a label with a name below the face
-        cv2.rectangle(frame, (left, bottom - 35), (right, bottom), (0, 0, 255), cv2.FILLED)
+            # Draw a label with a name below the face
+            cv2.rectangle(frame, (left, bottom - 35), (right, bottom), (0, 0, 255), cv2.FILLED)
+        
+        if left > 330:
+            # Draw a box around the face
+            cv2.rectangle(frame, (left, top), (right, bottom), (0, 255, 255), 2)
+        
+            # Draw a label with a name below the face
+            cv2.rectangle(frame, (left, bottom - 35), (right, bottom), (0, 255, 255), cv2.FILLED)
+
         font = cv2.FONT_HERSHEY_DUPLEX
-        #cv2.putText(frame, "OOOO", (right, bottom), font, 1.0, (255, 255, 255), 1)
+
         cv2.putText(frame, name, (left + 6, bottom - 6), font, 1.0, (255, 255, 255), 1)
-        #cv2.putText(frame, "1", (10,100), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 0, 0), 1)
+
         if name == "Diogenes":
             try:
                 if reference == 0:
                     reference = datetime.now()
                     reference_ct = time.time()
                 if reference != 0: 
-                    #aux_ = 0
+
                     time_detection_face_diogenes = time.time() - reference_ct
-                    #cv2.putText(frame, "diogenes_detected", (0,70), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 0, 0), 1)
-                    #print((datetime.now() - reference).microseconds)
-                
-                    #if time.time() - reference_ct > old:
-                    #    aux_ = 0
-                    #print(time.time() - reference_ct,aux_,old)
-                    #print(time.time() - reference_ct)
+
                     if time.time() - reference_ct > 2:
-                        #print(right)
+                        
                         if right < 310:
-                            #print("a")
-                            #if right < 310:
-                            #print(bool(aux) ^ bool(aux_))
-                            #old = time.time() - reference_ct
-                            #aux_ = 1
-                            #print((datetime.now() - reference).microseconds)
-                            file.write("Diogenes - " + str(reference) + "\n")
                             string_IN.append("Diogenes - " + str(reference) + "\n")
-                            cnt = cnt + 1 
+                            
+                        if right > 330:
+                            string_OUT.append("Diogenes - " + str(reference) + "\n")
             except:
                 reference=0
 
@@ -158,26 +161,14 @@ while True:
         reference = 0
         aux = 0
     
-#    time_detection_face_diogenes = time.time() - reference_ct
-#    if time_detection_face_diogenes == 2:
-#        print("a")
-#        file.write("Diogenes - " + str(reference) + "\n") 
-     
-        #cv2.putText(frame, "diogenes_detected", (0,70), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 0, 0), 1)
-
     font = cv2.FONT_HERSHEY_SIMPLEX
-    #cv2.putText(frame, "0", (0,100), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 0, 0), 1)
+    
     current_time = str(datetime.now())
-    #print(frame.shape) 480, 640
-    #name2 = "FACE_IN = " + str(datetime.datetime.now())
     
-    print(string_IN)
-
     cv2.putText(frame, current_time, (0,20), font, 0.5, (255, 0, 0), 1)
-    cv2.putText(frame, "Entry", (0,40), font, 0.5, (255, 0, 0), 1)
-    cv2.putText(frame, "Exit", (340,40), font, 0.5, (255, 0, 0), 1)
+    cv2.putText(frame, "Entry", (0,50), cv2.FONT_HERSHEY_TRIPLEX, 0.75, (255, 0, 0), 1)
+    cv2.putText(frame, "Exit", (340,50), cv2.FONT_HERSHEY_TRIPLEX, 0.75, (255, 0, 0), 1)
     
-    #frame_IN.fill(255)
     frame_IN[0:480,0:310] = frame[0:480,0:310]
     frame_IN[0:480,330:640] = frame[0:480,330:640]
     
@@ -190,15 +181,20 @@ while True:
 
 # Release handle to the webcamfont = cv2.FONT_HERSHEY_SIMPLEX
 
-file.close()
+string_IN = Remove(string_IN)
+string_OUT = Remove(string_OUT)
 
-lines_seen = set() # holds lines already seen
-outfile = open("FACE_IN.txt", "w")
-for line in open("out.txt", "r"):
-    if line not in lines_seen: # not a duplicate
-        outfile.write(line)
-        lines_seen.add(line)
-outfile.close()
+outF = open("FACE_IN.txt", "w")
+for line in string_IN:
+  # write line to output file
+  outF.write(line)
+outF.close()
+
+outF = open("FACE_OUT.txt", "w")
+for line in string_OUT:
+  # write line to output file
+  outF.write(line)
+outF.close()
 
 num_lines = 0
 with open("FACE_IN.txt", 'r') as f:
