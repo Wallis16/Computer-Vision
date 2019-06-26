@@ -28,11 +28,15 @@ global aux_
 global old
 global string_IN
 global string_OUT
+global flag_IN
+global flag_OUT
 cnt = 0
 aux_ = 0
 old = 0
 string_IN = []
 string_OUT = []
+flag_IN = True
+flag_OUT = False
 
 #file = open("out.txt","w")
 #file = open("FACE_OUT.txt","w")
@@ -133,29 +137,55 @@ while True:
         
             # Draw a label with a name below the face
             cv2.rectangle(frame, (left, bottom - 35), (right, bottom), (0, 255, 255), cv2.FILLED)
+         
+#        if right > 310 and left < 330:
+#            flag_detection = False
 
         font = cv2.FONT_HERSHEY_DUPLEX
 
         cv2.putText(frame, name, (left + 6, bottom - 6), font, 1.0, (255, 255, 255), 1)
 
-        if name == "Diogenes":
-            try:
-                if reference == 0:
-                    reference = datetime.now()
-                    reference_ct = time.time()
-                if reference != 0: 
+        if right < 310:
 
-                    time_detection_face_diogenes = time.time() - reference_ct
-
-                    if time.time() - reference_ct > 2:
-                        
-                        if right < 310:
-                            string_IN.append("Diogenes - " + str(reference) + "\n")
+            if name == "Diogenes" and flag_IN == True:
+                
+                try:
+                    if reference == 0:
+                        reference = datetime.now()
+                        reference_ct = time.time()
+                    
+                    if reference != 0: 
+                        time_detection_face_diogenes = time.time() - reference_ct
                             
-                        if right > 330:
+                        if time.time() - reference_ct > 2:
+                            string_IN.append("Diogenes - " + str(reference) + "\n")
+                            flag_OUT = True
+                            flag_IN = False       
+                except:
+                    reference=0
+
+        if left > 330:
+
+            if name == "Diogenes" and flag_OUT == True:
+                
+                try:
+                    if reference == 0:
+                        reference = datetime.now()
+                        reference_ct = time.time()
+                    
+                    if reference != 0: 
+                        time_detection_face_diogenes = time.time() - reference_ct
+                            
+                        if time.time() - reference_ct > 2:
                             string_OUT.append("Diogenes - " + str(reference) + "\n")
-            except:
-                reference=0
+                            flag_OUT = False
+                            flag_IN = True                                  
+                except:
+                    reference=0
+
+        if right > 310 and left < 330:
+            reference = 0
+
 
     if flag_detection == False:
         reference = 0
