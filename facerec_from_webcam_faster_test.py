@@ -3,6 +3,7 @@ import cv2
 import numpy as np
 from datetime import datetime
 import time
+import os
 
 # Python code to remove duplicate elements 
 def Remove(duplicate): 
@@ -22,7 +23,20 @@ def Remove(duplicate):
 # specific demo. If you have trouble installing it, try any of the other demos that don't require it instead.
 
 # Get a reference to webcam #0 (the default one)
-video_capture = cv2.VideoCapture(0)
+#video_capture = cv2.VideoCapture(0)
+cap = cv2.VideoCapture('Titanic_Scene_First_Class_Dinner.mp4')
+
+length = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+
+ret, frame = cap.read()
+
+# Create an output movie file (make sure resolution/frame rate matches input video!)
+fourcc = cv2.VideoWriter_fourcc('M','P','E','G')
+
+output_video = cv2.VideoWriter('output.avi', fourcc, 25, (frame.shape[1],frame.shape[0]))
+
+image_unknown = np.zeros((frame.shape[0],frame.shape[1],3),np.uint8)
+
 global cnt 
 global aux_
 global old
@@ -37,32 +51,43 @@ string_IN = []
 string_OUT = []
 flag_IN = True
 flag_OUT = False
+frame_number = 0
+cnt = 0
+dict_ = {}
 
 #file = open("out.txt","w")
 #file = open("FACE_OUT.txt","w")
 
 # Load a sample picture and learn how to recognize it.
-obama_image = face_recognition.load_image_file("wallis.jpg")
+obama_image = face_recognition.load_image_file("/home/default/Desktop/face_recognition_PDI/examples/DATA_SET_MV2/Rose.jpg")
 obama_face_encoding = face_recognition.face_encodings(obama_image)[0]
 
 # Load a second sample picture and learn how to recognize it.
-biden_image = face_recognition.load_image_file("obama.jpg")
+biden_image = face_recognition.load_image_file("/home/default/Desktop/face_recognition_PDI/examples/DATA_SET_MV2/Jack.jpg")
 biden_face_encoding = face_recognition.face_encodings(biden_image)[0]
 
-india_image = face_recognition.load_image_file("India_Eisley.jpg")
+india_image = face_recognition.load_image_file("/home/default/Desktop/face_recognition_PDI/examples/DATA_SET_MV2/Ruth.jpg")
 india_face_encoding = face_recognition.face_encodings(india_image)[0]
+
+image_4 = face_recognition.load_image_file("/home/default/Desktop/face_recognition_PDI/examples/DATA_SET_MV2/Caledon.jpg")
+face_encoding_4 = face_recognition.face_encodings(image_4)[0]
+
+#print(type(face_encoding_4))
+#print()
 
 # Create arrays of known face encodings and their names
 known_face_encodings = [
 	obama_face_encoding,
 	biden_face_encoding,
-	india_face_encoding
+	india_face_encoding,
+	face_encoding_4
 ]
 
 known_face_names = [
-	"Diogenes",
-	"Obama",
-	"India Eisley"
+	"Rose",
+	"Jack",
+	"Ruth",
+	"Caledon"
 ]
 
 # Initialize some variables
@@ -75,8 +100,9 @@ frame_IN = np.zeros((480,640,3),np.uint8)
 
 while True:
     # Grab a single frame of video
-	ret, frame = video_capture.read()
-    
+	ret, frame = cap.read()
+	#print(frame.shape)   
+	frame_number += 1
 	flag_detection = False
 	time_detection_face_diogenes = 0
 
@@ -96,7 +122,7 @@ while True:
 		for face_encoding in face_encodings:
             # See if the face is a match for the known face(s)
 			matches = face_recognition.compare_faces(known_face_encodings, face_encoding)
-			name = "Nao identificado"
+			name = "Desconhecido"
 
             # # If a match was found in known_face_encodings, just use the first one.
             # if True in matches:
@@ -118,27 +144,46 @@ while True:
 	for (top, right, bottom, left), name in zip(face_locations, face_names):
 
 		flag_detection = True
-
+		
+		#print(top, right, bottom, left)
         # Scale back up face locations since the frame we detected in was scaled to 1/4 size
 		top *= 4
 		right *= 4
 		bottom *= 4
 		left *= 4
+		
+		if name == "Desconhecido":
+			cnt += 1
+			aux_top = max(0, top - 50)
+			aux_bottom = min(bottom + 50,frame.shape[0])
+			aux_left = max(0, left - 50)
+			aux_right = min(right + 50,frame.shape[1])
+			
+			image_unknown = frame[aux_top:aux_bottom,aux_left:aux_right]
+			path1 = '/home/default/Desktop/face_recognition_PDI/examples/DATA_SET_UNKNOWN'
+			cv2.imwrite(os.path.join(path1,"ID_" + str(frame_number) + "-" + str(cnt) + ".jpg"), image_unknown)
+			path2 = '/home/default/Desktop/face_recognition_PDI/examples/DATA_SET_MV'
+			cv2.imwrite(os.path.join(path2,"ID_"+str(frame_number)+"-"+ str(cnt) + ".jpg"), image_unknown)			
+			
+			aux = "ID_" + str(frame_number) + "-" + str(cnt) + "-_-"			
+			dict_[aux] = face_recognition.load_image_file("/home/default/Desktop/face_recognition_PDI/examples/DATA_SET_MV/"+"ID_"+str(frame_number)+"-"+ str(cnt) + ".jpg")
 
-		if right < 310:
+			aux2 = "ID_" + str(frame_number) + "-" + str(cnt) + "^_^"
+			#print(type(dict_[aux]))
+			try:			
+				dict_[aux2] = face_recognition.face_encodings(dict_[aux])[0]
+				known_face_encodings.append(dict_[aux2])
+				known_face_names.append("ID_" + str(frame_number) + "-" + str(cnt))
+
+			except:
+				print(str(frame_number) + "-" + str(cnt))			
+	
             # Draw a box around the face
-			cv2.rectangle(frame, (left, top), (right, bottom), (0, 0, 255), 2)
+		cv2.rectangle(frame, (left, top), (right, bottom), (255, 0, 0), 2)
         
             # Draw a label with a name below the face
-			cv2.rectangle(frame, (left, bottom - 35), (right, bottom), (0, 0, 255), cv2.FILLED)
-        
-		if left > 330:
-            # Draw a box around the face
-			cv2.rectangle(frame, (left, top), (right, bottom), (0, 255, 255), 2)
-        
-            # Draw a label with a name below the face
-			cv2.rectangle(frame, (left, bottom - 35), (right, bottom), (0, 255, 255), cv2.FILLED)
-         
+		cv2.rectangle(frame, (left, bottom - 35), (right, bottom), (255, 0, 0), cv2.FILLED)
+                 
 #        if right > 310 and left < 330:
 #            flag_detection = False
 
@@ -146,48 +191,7 @@ while True:
 
 		cv2.putText(frame, name, (left + 6, bottom - 6), font, 1.0, (255, 255, 255), 1)
 
-		if right < 310:
-
-			if name == "Diogenes" and flag_IN == True:
-                
-				try:
-					if reference == 0:
-						reference = datetime.now()
-						reference_ct = time.time()
-                    
-					if reference != 0: 
-						time_detection_face_diogenes = time.time() - reference_ct
-                	            
-						if time.time() - reference_ct > 2:
-							string_IN.append("Diogenes - " + str(reference) + "\n")
-							flag_OUT = True
-							flag_IN = False       
-				except:
-					reference=0
-
-		if left > 330:
-
-			if name == "Diogenes" and flag_OUT == True:
-                
-				try:
-					if reference == 0:
-						reference = datetime.now()
-						reference_ct = time.time()
-                    
-					if reference != 0: 
-						time_detection_face_diogenes = time.time() - reference_ct
-                            
-						if time.time() - reference_ct > 2:
-							string_OUT.append("Diogenes - " + str(reference) + "\n")
-							flag_OUT = False
-							flag_IN = True                                  
-				except:
-					reference=0
-
-		if right > 310 and left < 330:
-			reference = 0
-
-
+	
 	if flag_detection == False:
 		reference = 0
 		aux = 0
@@ -196,18 +200,22 @@ while True:
     
 	current_time = str(datetime.now())
     
-	cv2.putText(frame, current_time, (0,20), font, 0.5, (255, 0, 0), 1)
-	cv2.putText(frame, "Entry", (0,50), cv2.FONT_HERSHEY_TRIPLEX, 0.75, (255, 0, 0), 1)
-	cv2.putText(frame, "Exit", (340,50), cv2.FONT_HERSHEY_TRIPLEX, 0.75, (255, 0, 0), 1)
+#	cv2.putText(frame, current_time, (0,20), font, 0.5, (255, 0, 0), 1)
     
-	frame_IN[0:480,0:310] = frame[0:480,0:310]
-	frame_IN[0:480,330:640] = frame[0:480,330:640]
-    
+#	frame_IN[0:480,0:310] = frame[0:480,0:310]
+#	frame_IN[0:480,330:640] = frame[0:480,330:640]
+	#small_frame = cv2.resize(frame, (0, 0), fx=1.2, fy=1.2)
     # Display the resulting image
-	cv2.imshow('Video', frame_IN)
+	#cv2.imshow('Video', frame)
+	print("Writing frame {} / {}".format(frame_number, length))
+	if frame_number > 5630:
+		break
+	output_video.write(frame)
+
+	#print(cap.get(cv2.CAP_PROP_FPS))
 
     # Hit 'q' on the keyboard to quit!
-	if cv2.waitKey(1) & 0xFF == ord('q'):
+	if cv2.waitKey(25) & 0xFF == ord('q'):
 		break
 
 # Release handle to the webcamfont = cv2.FONT_HERSHEY_SIMPLEX
@@ -235,5 +243,7 @@ with open("FACE_OUT.txt", 'r') as f:
 file = open("FACE_NUMB.txt","w")
 file.write("Diogenes - " + str(num_lines) + "\n")
 file.close()
-video_capture.release()
+
+cap.release()
+output_video.release()
 cv2.destroyAllWindows()
