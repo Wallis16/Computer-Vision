@@ -3,6 +3,7 @@ import cv2
 import numpy as np
 from datetime import datetime
 import time
+import os
 
 # Python code to remove duplicate elements 
 def Remove(duplicate): 
@@ -11,15 +12,6 @@ def Remove(duplicate):
 		if num not in final_list: 
 			final_list.append(num) 
 	return final_list 
-
-# This is a demo of running face recognition on live video from your webcam. It's a little more complicated than the
-# other example, but it includes some basic performance tweaks to make things run a lot faster:
-#   1. Process each video frame at 1/4 resolution (though still display it at full resolution)
-#   2. Only detect faces in every other frame of video.
-
-# PLEASE NOTE: This example requires OpenCV (the `cv2` library) to be installed only to read from your webcam.
-# OpenCV is *not* required to use the face_recognition library. It's only required if you want to run this
-# specific demo. If you have trouble installing it, try any of the other demos that don't require it instead.
 
 # Get a reference to webcam #0 (the default one)
 video_capture = cv2.VideoCapture(0)
@@ -32,36 +24,40 @@ global flag_IN
 global flag_OUT
 cnt = 0
 aux_ = 0
+aux__ = 0
 old = 0
 string_IN = []
 string_OUT = []
 flag_IN = True
 flag_OUT = False
-
+unk = False
+dict_ = {}
 #file = open("out.txt","w")
 #file = open("FACE_OUT.txt","w")
 
 # Load a sample picture and learn how to recognize it.
-obama_image = face_recognition.load_image_file("wallis.jpg")
-obama_face_encoding = face_recognition.face_encodings(obama_image)[0]
+image_1 = face_recognition.load_image_file("wallis.jpg")
+face_encoding_image_1 = face_recognition.face_encodings(obama_image)[0]
 
 # Load a second sample picture and learn how to recognize it.
-biden_image = face_recognition.load_image_file("obama.jpg")
-biden_face_encoding = face_recognition.face_encodings(biden_image)[0]
+#biden_image = face_recognition.load_image_file("obama.jpg")
+#biden_face_encoding = face_recognition.face_encodings(biden_image)[0]
+
+#q = face_recognition.load_image_file("/home/default/Desktop/face_recognition_PDI/examples/DATA_SET_MV/"+"ID"+"-"+str(1)+".jpg")
 
 india_image = face_recognition.load_image_file("India_Eisley.jpg")
 india_face_encoding = face_recognition.face_encodings(india_image)[0]
 
 # Create arrays of known face encodings and their names
 known_face_encodings = [
-	obama_face_encoding,
-	biden_face_encoding,
+	face_encoding_image_1,
+#	biden_face_encoding,
 	india_face_encoding
 ]
 
 known_face_names = [
 	"Diogenes",
-	"Obama",
+#	"Obama",
 	"India Eisley"
 ]
 
@@ -74,13 +70,17 @@ process_this_frame = True
 ret, frame = video_capture.read()
 frame = cv2.resize(frame, (0, 0), fx=1.4, fy=1.4)
 
+image_unknown = np.zeros((frame.shape[0],frame.shape[1],3),np.uint8)
 
 frame_IN = np.zeros((frame.shape[0],frame.shape[1],3),np.uint8)
 
 while True:
     # Grab a single frame of video
 	ret, frame = video_capture.read()
-    
+	ret, frame_aux = video_capture.read()
+
+	frame_aux = cv2.resize(frame_aux, (0, 0), fx=1.4, fy=1.4)
+
 	flag_detection = False
 	time_detection_face_diogenes = 0
 	#frame = cv2.resize(frame, (0, 0), fx=1.2, fy=1.2)
@@ -91,6 +91,7 @@ while True:
 	rgb_small_frame = small_frame[:, :, ::-1]
 
 	frame = cv2.resize(frame, (0, 0), fx=1.4, fy=1.4)
+	
     # Only process every other frame of video to save time
 	if process_this_frame:
         # Find all the faces and face encodings in the current frame of video
@@ -130,7 +131,7 @@ while True:
 		bottom *= 5.6
 		left *= 5.6
 		top, right, bottom, left = int(top), int(right), int(bottom), int(left)
-
+		
 		if right < (int(frame.shape[1]/2)-10):
             # Draw a box around the face
 			cv2.rectangle(frame, (left, top), (right, bottom), (0, 0, 255), 2)
@@ -154,23 +155,76 @@ while True:
 
 		if right < (int(frame.shape[1]/2)-10):
 
-			if name != "Desconhecido" and flag_IN == True:
-                
-				try:
-					if reference == 0:
-						reference = datetime.now()
-						reference_ct = time.time()
-                    
-					if reference != 0: 
-						time_detection_face_diogenes = time.time() - reference_ct
-                	            
-						if time.time() - reference_ct > 1:
-							string_IN.append(name + " - " + str(reference) + "\n")
-							flag_OUT = True
-							flag_IN = False       
-							print(string_IN)
-				except:
-					reference=0
+			#if name != "Desconhecido" and flag_IN == True:
+			if flag_IN == True:
+				if name != "Desconhecido":
+					try:
+						if reference == 0:
+							reference = datetime.now()
+							reference_ct = time.time()
+
+						if reference != 0: 
+							time_detection_face_diogenes = time.time() - reference_ct
+		        	            
+							if time.time() - reference_ct > 1:
+								string_IN.append(name + " - " + str(reference) + "\n")
+								flag_OUT = True
+								flag_IN = False       
+								print(time.time() - reference_ct)
+					except:
+						reference=0
+
+			#if name == "Desconhecido" and flag_IN == True:
+				if name == "Desconhecido":
+					try:
+						if reference == 0:
+							reference = datetime.now()
+							reference_ct = time.time()
+							
+		            
+						if reference != 0: 
+							time_detection_face_diogenes = time.time() - reference_ct
+						
+							if time.time() - reference_ct > 3:
+								
+								unk = True
+								cnt += 1
+								aux_top = max(0, top - 50)
+								aux_bottom = min(bottom + 50,frame.shape[0])
+								aux_left = max(0, left - 50)
+								aux_right = min(right + 50,frame.shape[1])
+			
+								image_unknown = frame_aux[aux_top:aux_bottom,aux_left:aux_right]
+								
+								print("a")
+								path1 = '/home/default/Desktop/face_recognition_PDI/examples/DATA_SET_UNKNOWN'
+								cv2.imwrite(os.path.join(path1,"ID"+"-"+str(cnt)+".jpg"), image_unknown)
+								#print("b")
+								path2 = '/home/default/Desktop/face_recognition_PDI/examples/DATA_SET_MV'
+								cv2.imwrite(os.path.join(path2,"ID" + "-" + str(cnt) + ".jpg"), image_unknown)			
+								aux2 = "ID" + "-" + str(cnt) + "-_-"
+								#print(cnt)			
+								dict_[aux2] = face_recognition.load_image_file("/home/default/Desktop/face_recognition_PDI/examples/DATA_SET_MV/"+"ID"+"-"+str(cnt)+".jpg") 
+								#print("zz")
+								aux3 = "ID" + "-" + str(cnt) + "^_^"
+								#print("z")
+								try:			
+									dict_[aux3] = face_recognition.face_encodings(dict_[aux2])[0]
+									known_face_encodings.append(dict_[aux3])
+									known_face_names.append("ID" + "-" + str(cnt))
+
+								except:
+									print("-" + str(cnt))			
+
+
+								string_IN.append("ID" + "-" + str(cnt) + " - " + str(reference) + "\n")
+								flag_OUT = True
+								flag_IN = False
+								#unk = False       
+								print(string_IN)
+					except:
+						reference=0
+
 
 		if left > (int(frame.shape[1]/2)+10):
 
@@ -259,6 +313,8 @@ for string in nomes:
             cont += 1
     cont_numb.append(string + " - " + str(cont) + "\n")
     cont = 0
+
+cont_numb = Remove(cont_numb)
 
 outF = open("FACE_NUMB.txt", "w")
 for line in cont_numb:
