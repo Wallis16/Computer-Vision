@@ -13,7 +13,7 @@ Once we have finished the process we generate 3 txt files containing entry and e
 In case of someone is not in our dataset we can take a picture, save and add an ID to this person.
 ![image](https://user-images.githubusercontent.com/26671424/60809771-d50fe880-a161-11e9-8c3a-8241e4a3a804.png)
 
-My webcam isn't good, so I have to decide to make an example using youtube video that has a resolution so much better than my poor camera.
+My webcam isn't good, so I decided to make an example using youtube video that has a resolution so much better than my poor camera.
 ![image](https://user-images.githubusercontent.com/26671424/60813736-b4985c00-a16a-11e9-997d-f3dbf5c0f04e.png)
 
 
