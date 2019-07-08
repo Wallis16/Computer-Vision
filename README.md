@@ -2,6 +2,17 @@
 
 Projects using digital image processing tools
 
+## final_project
+
+![image](https://user-images.githubusercontent.com/26671424/60809606-721e5180-a161-11e9-9614-c30432195aaf.png)
+
+![image](https://user-images.githubusercontent.com/26671424/60809771-d50fe880-a161-11e9-8c3a-8241e4a3a804.png)
+
+![image](https://user-images.githubusercontent.com/26671424/60813459-2ae88e80-a16a-11e9-99fb-9f15b3133e04.png)
+
+![image](https://user-images.githubusercontent.com/26671424/60813736-b4985c00-a16a-11e9-997d-f3dbf5c0f04e.png)
+
+
 ### project-0
 First project -- line follower robot (v-rep simulation environment)
 
