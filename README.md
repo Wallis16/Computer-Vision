@@ -4,12 +4,16 @@ Projects using digital image processing tools
 
 ## final_project
 
+Here we have a frame divided into two parts. Left side is our entry and right side is the exit. Person get recognized by facial image using the face_recognition library. 
 ![image](https://user-images.githubusercontent.com/26671424/60809606-721e5180-a161-11e9-9614-c30432195aaf.png)
 
-![image](https://user-images.githubusercontent.com/26671424/60809771-d50fe880-a161-11e9-8c3a-8241e4a3a804.png)
-
+Once we have finished the process we generate 3 txt files containing entry and exit time. We also have a file with the number of times that someone has confirmed entry and exit. 
 ![image](https://user-images.githubusercontent.com/26671424/60813459-2ae88e80-a16a-11e9-99fb-9f15b3133e04.png)
 
+In case of someone is not in our dataset we can take a picture, save and add an ID to this person.
+![image](https://user-images.githubusercontent.com/26671424/60809771-d50fe880-a161-11e9-8c3a-8241e4a3a804.png)
+
+My webcam isn't good, so I have to decide to make an example using youtube video that has a resolution so much better than my poor camera.
 ![image](https://user-images.githubusercontent.com/26671424/60813736-b4985c00-a16a-11e9-997d-f3dbf5c0f04e.png)
 
 
